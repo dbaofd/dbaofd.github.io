@@ -246,8 +246,8 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.text();
-                showResult(data);
+                const data = await response.json();
+                showResult(data.words);
 
             } catch (error) {
                 console.error('Error:', error);
