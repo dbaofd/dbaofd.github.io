@@ -1,1 +1,271 @@
-<h2 style="color:red">Brewing</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number to Currency Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: #667eea;
+        }
+
+        input[type="number"].error {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: left;
+            display: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .result p {
+            color: #555;
+            font-size: 1.1em;
+            font-weight: 500;
+            word-wrap: break-word;
+        }
+
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e1e1;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Number to Currency Converter</h1>
+        
+        <div class="input-group">
+            <label for="numberInput">Enter a number:</label>
+            <input type="number" id="numberInput" step="0.01" placeholder="123.45" required>
+            <div class="error-message" id="numberError">Please enter a valid number</div>
+        </div>
+
+        <button id="convertBtn" onclick="convertNumber()">Convert Now</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Converting...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h3>Result:</h3>
+            <p id="resultText"></p>
+        </div>
+
+        <div class="footer">
+            <p>Enter a decimal number to convert it to English currency words</p>
+        </div>
+    </div>
+
+    <script>
+        function validateNumber(value) {
+            return !isNaN(value) && isFinite(value) && value !== '';
+        }
+
+        function validateUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        function showError(inputId, errorId, message) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+            input.classList.add('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+
+        function hideError(inputId, errorId) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+            input.classList.remove('error');
+            error.style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('convertBtn').disabled = true;
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('convertBtn').disabled = false;
+        }
+
+        function showResult(text) {
+            document.getElementById('resultText').textContent = text;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        async function convertNumber() {
+            const numberInput = document.getElementById('numberInput').value;
+
+            hideError('numberInput', 'numberError');
+
+            if (!numberInput || !validateNumber(parseFloat(numberInput))) {
+                showError('numberInput', 'numberError', 'Please enter a valid number');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const apiUrl = `https://number-converter-bfo5.onrender.com/convert-currency?number=${parseFloat(numberInput)}`;
+                
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.text();
+                showResult(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showResult(`Error: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        document.getElementById('numberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertNumber();
+            }
+        });
+
+        document.getElementById('numberInput').addEventListener('input', function() {
+            hideError('numberInput', 'numberError');
+        });
+    </script>
+</body>
+</html>
