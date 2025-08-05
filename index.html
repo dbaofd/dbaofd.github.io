@@ -226,13 +226,22 @@
         function formatNumber(num) {
             if (!num || num === '') return '';
             
-            const number = parseFloat(num);
-            if (isNaN(number)) return '';
+            const numStr = num.toString();
+            const parts = numStr.split('.');
+            const integerPart = parts[0];
+            const decimalPart = parts[1];
             
-            return number.toLocaleString('en-US', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 20
-            });
+            // Format integer part with commas from right to left
+            let formattedInteger = '';
+            for (let i = integerPart.length - 1, count = 0; i >= 0; i--, count++) {
+                if (count > 0 && count % 3 === 0) {
+                    formattedInteger = ',' + formattedInteger;
+                }
+                formattedInteger = integerPart[i] + formattedInteger;
+            }
+            
+            // Add decimal part if exists
+            return decimalPart ? formattedInteger + '.' + decimalPart : formattedInteger;
         }
 
         function showFormattedNumber(value) {
