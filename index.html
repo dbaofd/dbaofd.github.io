@@ -172,7 +172,7 @@
         
         <div class="input-group">
             <label for="numberInput">Enter a number:</label>
-            <input type="number" id="numberInput" placeholder="123.45" required>
+            <input type="number" id="numberInput" placeholder="123.45" min="0" required>
             <div class="error-message" id="numberError">Please enter a valid number</div>
             <div class="formatted-number" id="formattedNumber"></div>
         </div>
@@ -196,7 +196,7 @@
 
     <script>
         function validateNumber(value) {
-            return !isNaN(value) && isFinite(value) && value !== '';
+            return !isNaN(value) && isFinite(value) && value !== '' && value >= 0;
         }
 
         function validateUrl(url) {
@@ -249,7 +249,7 @@
             const formatted = formatNumber(value);
             
             if (formatted) {
-                formattedDiv.textContent = `(${formatted})`;
+                formattedDiv.textContent = `${formatted}`;
                 formattedDiv.style.display = 'block';
             } else {
                 formattedDiv.style.display = 'none';
@@ -277,8 +277,13 @@
 
             hideError('numberInput', 'numberError');
 
-            if (!numberInput || !validateNumber(parseFloat(numberInput))) {
-                showError('numberInput', 'numberError', 'Please enter a valid number');
+            const numValue = parseFloat(numberInput);
+            if (!numberInput || !validateNumber(numValue)) {
+                if (numValue < 0) {
+                    showError('numberInput', 'numberError', 'Please enter a positive number or zero');
+                } else {
+                    showError('numberInput', 'numberError', 'Please enter a valid number');
+                }
                 return;
             }
 
